@@ -77,7 +77,7 @@ def request_started_handler(sender, **kwargs):
             if session:
                 user_id = session.get_decoded().get('_auth_user_id')
                 try:
-                    user = get_user_model().objects.get(id=user_id)
+                    user = get_user_model()._base_manager.get(id=user_id)
                 except:
                     user = None
 

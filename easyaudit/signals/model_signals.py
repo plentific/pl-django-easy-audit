@@ -55,7 +55,7 @@ def get_current_user_details():
         if user and not isinstance(user, AnonymousUser):
             if getattr(settings, "DJANGO_EASY_AUDIT_CHECK_IF_REQUEST_USER_EXISTS", True):
                 # validate that the user still exists
-                user = get_user_model().objects.get(pk=user.pk)
+                user = get_user_model()._base_manager.get(pk=user.pk)
             user_id, user_pk_as_string = user.id, str(user.pk)
     except:
         pass
@@ -86,7 +86,7 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
 
             # created or updated?
             if not created:
-                old_model = sender.objects.get(pk=instance.pk)
+                old_model = sender._base_manager.get(pk=instance.pk)
                 delta = model_delta(old_model, instance)
                 if not delta and getattr(settings, "DJANGO_EASY_AUDIT_CRUD_EVENT_NO_CHANGED_FIELDS_SKIP", False):
                     return False
