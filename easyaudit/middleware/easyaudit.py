@@ -1,28 +1,32 @@
-
 # makes easy-audit thread-safe
-try:
-    from threading import local
-except ImportError:
-    from django.utils._threading_local import local
+import contextlib
+from typing import Callable
 
-class MockRequest(object):
+from asgiref.local import Local
+from asgiref.sync import iscoroutinefunction, markcoroutinefunction
+from django.http.request import HttpRequest
+from django.http.response import HttpResponse
+
+
+class MockRequest:
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
+        user = kwargs.pop("user", None)
         self.user = user
-        super(MockRequest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
-_thread_locals = local()
+_thread_locals = Local()
 
 
 def get_current_request():
-    return getattr(_thread_locals, 'request', None)
+    return getattr(_thread_locals, "request", None)
 
 
 def get_current_user():
     request = get_current_request()
     if request:
-        return getattr(request, 'user', None)
+        return getattr(request, "user", None)
+    return None
 
 
 def set_current_user(user):
@@ -34,41 +38,37 @@ def set_current_user(user):
 
 
 def clear_request():
-    try:
+    with contextlib.suppress(AttributeError):
         del _thread_locals.request
-    except AttributeError:
-        pass
 
 
 class EasyAuditMiddleware:
+    async_capable = True
+    sync_capable = True
 
-    """Makes request available to this app signals."""
-    def __init__(self, get_response=None):
+    def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]) -> None:
         self.get_response = get_response
+        if iscoroutinefunction(self.get_response):
+            markcoroutinefunction(self)
 
-    def __call__(self, request):
-        _thread_locals.request = request  # seems redundant w/process_request, but keeping in for now.
-        if hasattr(self, 'process_request'):
-            response = self.process_request(request)
-        response = response or self.get_response(request)
-        if hasattr(self, 'process_response'):
-            response = self.process_response(request, response)
-        return response
+    def __call__(self, request: HttpRequest) -> HttpResponse:
+        if iscoroutinefunction(self):
+            return self.__acall__(request)
 
-    def process_request(self, request):
         _thread_locals.request = request
-        return None
+        response = self.get_response(request)
 
-    def process_response(self, request, response):
-        try:
+        with contextlib.suppress(AttributeError):
             del _thread_locals.request
-        except AttributeError:
-            pass
+
         return response
 
-    def process_exception(self, request, exception):
-        try:
+    async def __acall__(self, request: HttpRequest) -> HttpResponse:
+        _thread_locals.request = request
+
+        response = await self.get_response(request)
+
+        with contextlib.suppress(AttributeError):
             del _thread_locals.request
-        except AttributeError:
-            pass
-        return None
+
+        return response
