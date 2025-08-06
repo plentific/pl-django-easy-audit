@@ -42,14 +42,33 @@ def log_event(event_type, instance, object_id, object_json_repr, **kwargs):
     audience_data = {}
     try:
         request = get_current_request()
-        if request and hasattr(request, "audience"):
-            audience = request.audience
-            if hasattr(audience, "authenticated_user_uuid"):
-                audience_data["authenticated_user_uuid"] = audience.authenticated_user_uuid
-            if hasattr(audience, "user_uuid"):
-                audience_data["user_uuid"] = audience.user_uuid
+        if request:
+            if hasattr(request, "audience"):
+                audience = request.audience
+                if hasattr(audience, "authenticated_user_uuid"):
+                    audience_data[
+                        "authenticated_user_uuid"
+                    ] = audience.authenticated_user_uuid
+                    logger.info(
+                        "AUDIT: Set authenticated_user_uuid=%s",
+                        audience.authenticated_user_uuid,
+                    )
+                if hasattr(audience, "user_uuid"):
+                    audience_data["user_uuid"] = audience.user_uuid
+                    logger.info("AUDIT: Set user_uuid=%s", audience.user_uuid)
+            else:
+                logger.warning("AUDIT: Request exists but no audience attribute")
+        else:
+            logger.warning("AUDIT: No current request found")
+
+        if audience_data:
+            logger.info("AUDIT: Final audience_data=%s", audience_data)
+        else:
+            logger.warning("AUDIT: No audience data extracted")
     except Exception as e:
-        logger.debug("Failed to extract audience data from request: %s", e)
+        logger.error(
+            "AUDIT: Failed to extract audience data from request: %s", e, exc_info=True
+        )
 
     with transaction.atomic(using=DATABASE_ALIAS):
         audit_logger.crud(
