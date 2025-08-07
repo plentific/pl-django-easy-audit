@@ -42,29 +42,47 @@ def log_event(event_type, instance, object_id, object_json_repr, **kwargs):
     audience_data = {}
     try:
         request = get_current_request()
+        logger.warning("AUDIT: Request object: %s", request)
+
         if request:
+            logger.warning("AUDIT: Request found, checking for audience attribute")
+
             if hasattr(request, "audience"):
                 audience = request.audience
+                logger.warning("AUDIT: Audience object found: %s", audience)
+                logger.warning("AUDIT: Audience attributes: %s", dir(audience))
+
+                # Check for authenticated_user_uuid
                 if hasattr(audience, "authenticated_user_uuid"):
                     audience_data[
                         "authenticated_user_uuid"
                     ] = audience.authenticated_user_uuid
-                    logger.info(
+                    logger.warning(
                         "AUDIT: Set authenticated_user_uuid=%s",
                         audience.authenticated_user_uuid,
                     )
+                else:
+                    logger.error(
+                        "AUDIT: Audience object missing 'authenticated_user_uuid' attribute"
+                    )
+
+                # Check for user_uuid
                 if hasattr(audience, "user_uuid"):
                     audience_data["user_uuid"] = audience.user_uuid
-                    logger.info("AUDIT: Set user_uuid=%s", audience.user_uuid)
+                    logger.warning("AUDIT: Set user_uuid=%s", audience.user_uuid)
+                else:
+                    logger.error("AUDIT: Audience object missing 'user_uuid' attribute")
+
             else:
-                logger.warning("AUDIT: Request exists but no audience attribute")
+                logger.error("AUDIT: Request exists but no audience attribute")
+                logger.warning("AUDIT: Request attributes: %s", dir(request))
         else:
-            logger.warning("AUDIT: No current request found")
+            logger.error("AUDIT: No current request found")
 
         if audience_data:
-            logger.info("AUDIT: Final audience_data=%s", audience_data)
+            logger.warning("AUDIT: Final audience_data=%s", audience_data)
         else:
-            logger.warning("AUDIT: No audience data extracted")
+            logger.error("AUDIT: No audience data extracted")
     except Exception as e:
         logger.error(
             "AUDIT: Failed to extract audience data from request: %s", e, exc_info=True
