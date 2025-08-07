@@ -58,6 +58,8 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
         "object_id",
         "object_repr_link",
         "user_link",
+        "authenticated_user_uuid",
+        "user_uuid",
         "datetime",
     ]
     date_hierarchy = "datetime"
@@ -71,6 +73,8 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
         "object_json_repr_prettified",
         "get_user",
         "user_pk_as_string",
+        "authenticated_user_uuid",
+        "user_uuid",
         "datetime",
         "changed_fields_prettified",
     ]

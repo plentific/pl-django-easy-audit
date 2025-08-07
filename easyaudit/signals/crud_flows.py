@@ -88,20 +88,30 @@ def log_event(event_type, instance, object_id, object_json_repr, **kwargs):
             "AUDIT: Failed to extract audience data from request: %s", e, exc_info=True
         )
 
+    # Debug: log what we're about to save to database
+    crud_data = {
+        "content_type_id": ContentType.objects.get_for_model(instance).id,
+        "datetime": timezone.now(),
+        "event_type": event_type,
+        "object_id": object_id,
+        "object_json_repr": object_json_repr or "",
+        "object_repr": str(instance),
+        "user_id": user_id,
+        "user_pk_as_string": user_pk_as_string,
+        **audience_data,  # Add audience data here
+        **kwargs,
+    }
+    logger.error("AUDIT: About to save crud_data to database: %s", crud_data)
+
     with transaction.atomic(using=DATABASE_ALIAS):
-        audit_logger.crud(
-            {
-                "content_type_id": ContentType.objects.get_for_model(instance).id,
-                "datetime": timezone.now(),
-                "event_type": event_type,
-                "object_id": object_id,
-                "object_json_repr": object_json_repr or "",
-                "object_repr": str(instance),
-                "user_id": user_id,
-                "user_pk_as_string": user_pk_as_string,
-                **audience_data,  # Add audience data here
-                **kwargs,
-            }
+        created_event = audit_logger.crud(crud_data)
+        logger.error(
+            "AUDIT: Created event ID: %s, authenticated_user_uuid: %s, user_uuid: %s",
+            created_event.id if created_event else "None",
+            getattr(created_event, "authenticated_user_uuid", "MISSING")
+            if created_event
+            else "None",
+            getattr(created_event, "user_uuid", "MISSING") if created_event else "None",
         )
 
 
