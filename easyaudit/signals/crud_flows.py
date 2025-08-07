@@ -36,13 +36,6 @@ def get_current_user_details():
 
 
 def log_event(event_type, instance, object_id, object_json_repr, **kwargs):
-    # TEMPORARY DEBUG: Force log to console regardless of logging config
-    print(
-        f"🔥 AUDIT DEBUG 1: log_event called! event_type={event_type}, instance={instance}"
-    )
-    logger.warning(
-        f"🔥 AUDIT DEBUG 2: log_event called! event_type={event_type}, instance={instance}"
-    )
     user_id, user_pk_as_string = get_current_user_details()
 
     # Extract audience data from current request
