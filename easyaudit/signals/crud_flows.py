@@ -42,53 +42,15 @@ def log_event(event_type, instance, object_id, object_json_repr, **kwargs):
     audience_data = {}
     try:
         request = get_current_request()
-        logger.warning("AUDIT: Request object: %s", request)
-
-        if request:
-            logger.warning("AUDIT: Request found, checking for audience attribute")
-
-            if hasattr(request, "audience"):
-                audience = request.audience
-                logger.warning("AUDIT: Audience object found: %s", audience)
-                logger.warning("AUDIT: Audience attributes: %s", dir(audience))
-
-                # Check for authenticated_user_uuid
-                if hasattr(audience, "authenticated_user_uuid"):
-                    audience_data[
-                        "authenticated_user_uuid"
-                    ] = audience.authenticated_user_uuid
-                    logger.warning(
-                        "AUDIT: Set authenticated_user_uuid=%s",
-                        audience.authenticated_user_uuid,
-                    )
-                else:
-                    logger.error(
-                        "AUDIT: Audience object missing 'authenticated_user_uuid' attribute"
-                    )
-
-                # Check for user_uuid
-                if hasattr(audience, "user_uuid"):
-                    audience_data["user_uuid"] = audience.user_uuid
-                    logger.warning("AUDIT: Set user_uuid=%s", audience.user_uuid)
-                else:
-                    logger.error("AUDIT: Audience object missing 'user_uuid' attribute")
-
-            else:
-                logger.error("AUDIT: Request exists but no audience attribute")
-                logger.warning("AUDIT: Request attributes: %s", dir(request))
-        else:
-            logger.error("AUDIT: No current request found")
-
-        if audience_data:
-            logger.warning("AUDIT: Final audience_data=%s", audience_data)
-        else:
-            logger.error("AUDIT: No audience data extracted")
+        if request and hasattr(request, "audience") and request.audience:
+            audience = request.audience
+            if hasattr(audience, "authenticated_user_uuid"):
+                audience_data["authenticated_user_uuid"] = audience.authenticated_user_uuid
+            if hasattr(audience, "user_uuid"):
+                audience_data["user_uuid"] = audience.user_uuid
     except Exception as e:
-        logger.error(
-            "AUDIT: Failed to extract audience data from request: %s", e, exc_info=True
-        )
+        logger.error("Failed to extract audience data from request: %s", e)
 
-    # Debug: log what we're about to save to database
     crud_data = {
         "content_type_id": ContentType.objects.get_for_model(instance).id,
         "datetime": timezone.now(),
@@ -101,18 +63,9 @@ def log_event(event_type, instance, object_id, object_json_repr, **kwargs):
         **audience_data,  # Add audience data here
         **kwargs,
     }
-    logger.error("AUDIT: About to save crud_data to database: %s", crud_data)
 
     with transaction.atomic(using=DATABASE_ALIAS):
-        created_event = audit_logger.crud(crud_data)
-        logger.error(
-            "AUDIT: Created event ID: %s, authenticated_user_uuid: %s, user_uuid: %s",
-            created_event.id if created_event else "None",
-            getattr(created_event, "authenticated_user_uuid", "MISSING")
-            if created_event
-            else "None",
-            getattr(created_event, "user_uuid", "MISSING") if created_event else "None",
-        )
+        audit_logger.crud(crud_data)
 
 
 def handle_flow_exception(instance, signal):
