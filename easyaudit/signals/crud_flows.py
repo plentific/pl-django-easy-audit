@@ -11,7 +11,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.module_loading import import_string
 
-from easyaudit.middleware.easyaudit import get_current_user
+from easyaudit.middleware.easyaudit import get_current_request, get_current_user
 from easyaudit.models import CRUDEvent
 from easyaudit.settings import DATABASE_ALIAS, LOGGING_BACKEND
 from easyaudit.utils import get_m2m_field_name, should_propagate_exceptions
@@ -37,20 +37,35 @@ def get_current_user_details():
 
 def log_event(event_type, instance, object_id, object_json_repr, **kwargs):
     user_id, user_pk_as_string = get_current_user_details()
+
+    # Extract audience data from current request
+    audience_data = {}
+    try:
+        request = get_current_request()
+        if request and hasattr(request, "audience") and request.audience:
+            audience = request.audience
+            if hasattr(audience, "authenticated_user_uuid"):
+                audience_data["authenticated_user_uuid"] = audience.authenticated_user_uuid
+            if hasattr(audience, "user_uuid"):
+                audience_data["user_uuid"] = audience.user_uuid
+    except Exception as e:
+        logger.error("Failed to extract audience data from request: %s", e)
+
+    crud_data = {
+        "content_type_id": ContentType.objects.get_for_model(instance).id,
+        "datetime": timezone.now(),
+        "event_type": event_type,
+        "object_id": object_id,
+        "object_json_repr": object_json_repr or "",
+        "object_repr": str(instance),
+        "user_id": user_id,
+        "user_pk_as_string": user_pk_as_string,
+        **audience_data,  # Add audience data here
+        **kwargs,
+    }
+
     with transaction.atomic(using=DATABASE_ALIAS):
-        audit_logger.crud(
-            {
-                "content_type_id": ContentType.objects.get_for_model(instance).id,
-                "datetime": timezone.now(),
-                "event_type": event_type,
-                "object_id": object_id,
-                "object_json_repr": object_json_repr or "",
-                "object_repr": str(instance),
-                "user_id": user_id,
-                "user_pk_as_string": user_pk_as_string,
-                **kwargs,
-            }
-        )
+        audit_logger.crud(crud_data)
 
 
 def handle_flow_exception(instance, signal):

@@ -65,6 +65,10 @@ class CRUDEvent(models.Model):
     )
     datetime = models.DateTimeField(auto_now_add=True, verbose_name=_("Date time"))
 
+    # Plentific fields
+    authenticated_user_uuid = models.UUIDField(null=True)  # populated from request.audience
+    user_uuid = models.UUIDField(null=True)  # populated from request.audience
+
     class Meta:
         verbose_name = _("CRUD event")
         verbose_name_plural = _("CRUD events")
