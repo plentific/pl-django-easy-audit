@@ -51,21 +51,21 @@ def log_event(event_type, instance, object_id, object_json_repr, **kwargs):
     except Exception as e:
         logger.error("Failed to extract audience data from request: %s", e)
 
-    crud_data = {
-        "content_type_id": ContentType.objects.get_for_model(instance).id,
-        "datetime": timezone.now(),
-        "event_type": event_type,
-        "object_id": object_id,
-        "object_json_repr": object_json_repr or "",
-        "object_repr": str(instance),
-        "user_id": user_id,
-        "user_pk_as_string": user_pk_as_string,
-        **audience_data,  # Add audience data here
-        **kwargs,
-    }
-
     with transaction.atomic(using=DATABASE_ALIAS):
-        audit_logger.crud(crud_data)
+        audit_logger.crud(
+            {
+                "content_type_id": ContentType.objects.get_for_model(instance).id,
+                "datetime": timezone.now(),
+                "event_type": event_type,
+                "object_id": object_id,
+                "object_json_repr": object_json_repr or "",
+                "object_repr": str(instance),
+                "user_id": user_id,
+                "user_pk_as_string": user_pk_as_string,
+                **audience_data,  # Add audience data here
+                **kwargs,
+            }
+        )
 
 
 def handle_flow_exception(instance, signal):
