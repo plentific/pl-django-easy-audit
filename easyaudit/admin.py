@@ -120,7 +120,7 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
     def changed_fields_prettified(self, obj):
         return prettify_json(obj.changed_fields)
 
-    @admin.display(description="UUID Status")
+    @admin.display(description="User Status")
     def uuid_status(self, obj):
         # Both empty
         if not obj.authenticated_user_uuid and not obj.user_uuid:
@@ -130,7 +130,7 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
             return "🟢"
         return "🔴"
 
-    @admin.display(description="User UUID")
+    @admin.display(description="User UUID (impersonated)")
     def user_uuid_with_status(self, obj):
         if not obj.user_uuid:
             return "-"
