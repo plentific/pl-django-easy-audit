@@ -58,6 +58,7 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
         "object_id",
         "object_repr_link",
         "user_link",
+        "audience_user_uuid_status_list",
         "datetime",
     ]
     date_hierarchy = "datetime"
@@ -71,6 +72,8 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
         "object_json_repr_prettified",
         "get_user",
         "user_pk_as_string",
+        "authenticated_user_uuid",
+        "user_uuid_with_status",
         "datetime",
         "changed_fields_prettified",
     ]
@@ -116,6 +119,28 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
     @admin.display(description="changed fields")
     def changed_fields_prettified(self, obj):
         return prettify_json(obj.changed_fields)
+
+    @admin.display(description="User")
+    def audience_user_uuid_status_list(self, obj):
+        # Both empty
+        if not obj.authenticated_user_uuid and not obj.user_uuid:
+            return "-"
+
+        if str(obj.authenticated_user_uuid) == str(obj.user_uuid):
+            return "actual"
+        return "staff"
+
+    @admin.display(description="User UUID (impersonated)")
+    def user_uuid_with_status(self, obj):
+        """Help staff users quicker identify if the user is impersonated or not."""
+        if not obj.user_uuid:
+            return "-"
+
+        response = f"{obj.user_uuid}"
+        if obj.authenticated_user_uuid != obj.user_uuid:
+            response += " 🔴"
+
+        return mark_safe(response)  # noqa: S308
 
     actions = [export_to_csv]
 
