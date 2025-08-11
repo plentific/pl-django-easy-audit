@@ -58,7 +58,7 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
         "object_id",
         "object_repr_link",
         "user_link",
-        "uuid_status",
+        "user_uuid_status",
         "datetime",
     ]
     date_hierarchy = "datetime"
@@ -120,15 +120,15 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
     def changed_fields_prettified(self, obj):
         return prettify_json(obj.changed_fields)
 
-    @admin.display(description="User Status")
-    def uuid_status(self, obj):
+    @admin.display(description="User")
+    def user_uuid_status(self, obj):
         # Both empty
         if not obj.authenticated_user_uuid and not obj.user_uuid:
             return "-"
 
         if str(obj.authenticated_user_uuid) == str(obj.user_uuid):
-            return "🟢"
-        return "🔴"
+            return "actual"
+        return "staff"
 
     @admin.display(description="User UUID (impersonated)")
     def user_uuid_with_status(self, obj):
