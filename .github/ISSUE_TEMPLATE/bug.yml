@@ -1,0 +1,76 @@
+name: Bug
+description: Something broken — regression or defect (engineering or support)
+title: "🐛 "
+type: Bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Report **observed behaviour** and **steps to reproduce**.
+        Avoid proposing a root cause unless you have evidence.
+        Suitable for engineering and support — fill in whatever you know; leave the rest blank.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Short description of the defect from the user's perspective.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: What should have happened.
+    validations:
+      required: false
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: What happened instead.
+    validations:
+      required: false
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps to reproduce. Include account, job, or request IDs if safe to share. Attach screenshots or logs on the issue after creating if needed.
+      placeholder: |
+        1. …
+        2. …
+        3. Observe …
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: environment
+    attributes:
+      label: Environment
+      description: Select all that apply.
+      options:
+        - label: Web
+        - label: iOS
+        - label: Android
+        - label: Backend
+        - label: Production
+        - label: Staging
+        - label: Development
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-details
+    attributes:
+      label: Additional details
+      description: >
+        Anything else that helps triage or reproduce — include only what applies
+        (e.g. app/build version, browser and OS, API endpoint or service,
+        approximate time of occurrence, error message or correlation ID).
+      placeholder: |
+        e.g. App 4.12.0 (1234) · Chrome 126 on macOS
+    validations:
+      required: false

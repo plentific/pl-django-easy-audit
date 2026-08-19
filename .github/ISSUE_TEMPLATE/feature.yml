@@ -1,0 +1,78 @@
+name: Feature
+description: User-facing slice of value deliverable in one or more PRs
+title: "✨ "
+type: Feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A Feature describes **what** a user can do after the work ships.
+        Keep acceptance criteria product-level and testable where possible.
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Requirements & Scope
+      description: What this feature includes — background, current behaviour, and boundaries of the work.
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: User story
+      description: "As a … I want … so that …"
+      placeholder: As a …, I want … so that …
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: Checklist of testable outcomes. Prefer observable behaviour over implementation steps.
+      placeholder: |
+        - [ ] Given … when … then …
+        - [ ] …
+    validations:
+      required: false
+
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: What this feature deliberately does not cover.
+    validations:
+      required: false
+
+  - type: textarea
+    id: qe-instructions
+    attributes:
+      label: QE instructions
+      description: Verification steps — each line is an action plus an observable outcome.
+      placeholder: |
+        1. Open … → expect …
+        2. …
+    validations:
+      required: false
+
+  - type: textarea
+    id: document-links
+    attributes:
+      label: Document links
+      description: PRD, specs, discovery docs, or other references. One URL per line.
+      placeholder: |
+        https://…
+        https://…
+    validations:
+      required: false
+
+  - type: textarea
+    id: design-links
+    attributes:
+      label: Design links
+      description: Figma, mockups, or other design references. One URL per line.
+      placeholder: |
+        https://www.figma.com/design/…
+    validations:
+      required: false

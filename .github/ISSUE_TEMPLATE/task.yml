@@ -1,0 +1,63 @@
+name: Task
+description: General work item — use when the work is not an Epic, Feature, Bug, or Spike
+title: "🎯 "
+type: Task
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use a **Task** for any discrete piece of work that does not fit the other types:
+        **Epic**, **Feature**, **Bug**, or **Spike**.
+        Examples include engineering chores, docs, process updates, release prep,
+        or smaller deliverables under an Epic or Feature.
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What this task covers — what will be done, changed, or delivered.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: Concrete, verifiable done conditions.
+      placeholder: |
+        - [ ] …
+        - [ ] …
+    validations:
+      required: false
+
+  - type: textarea
+    id: qe-instructions
+    attributes:
+      label: QE instructions
+      description: Verification steps — each line is an action plus an observable outcome. Leave blank if not verifiable.
+      placeholder: |
+        1. Open … → expect …
+        2. …
+    validations:
+      required: false
+
+  - type: textarea
+    id: document-links
+    attributes:
+      label: Document links
+      description: PRD, specs, discovery docs, or other references. One URL per line.
+      placeholder: |
+        https://…
+        https://…
+    validations:
+      required: false
+
+  - type: textarea
+    id: design-links
+    attributes:
+      label: Design links
+      description: Figma, mockups, or other design references. One URL per line.
+      placeholder: |
+        https://www.figma.com/design/…
+    validations:
+      required: false
