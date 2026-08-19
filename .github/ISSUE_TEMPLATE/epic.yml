@@ -1,0 +1,51 @@
+name: Epic
+description: Outcome-sized initiative spanning multiple features or tasks
+title: "⛰️ "
+type: Epic
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use an Epic for a user- or product-visible outcome delivered through several child issues.
+        Link child Features/Tasks after creation, or set this Epic as the parent.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One paragraph — what we are trying to achieve and why it matters.
+      placeholder: Users need to … so that …
+    validations:
+      required: true
+
+  - type: textarea
+    id: success-criteria
+    attributes:
+      label: Success criteria
+      description: Testable, product-level conditions that mean the Epic is done.
+      placeholder: |
+        - [ ] …
+        - [ ] …
+    validations:
+      required: false
+
+  - type: textarea
+    id: document-links
+    attributes:
+      label: Document links
+      description: PRD, specs, discovery docs, or other references. One URL per line.
+      placeholder: |
+        https://…
+        https://…
+    validations:
+      required: false
+
+  - type: textarea
+    id: design-links
+    attributes:
+      label: Design links
+      description: Figma, mockups, or other design references. One URL per line.
+      placeholder: |
+        https://www.figma.com/design/…
+    validations:
+      required: false

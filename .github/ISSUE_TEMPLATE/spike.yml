@@ -1,0 +1,31 @@
+name: Spike
+description: Time-boxed investigation to reduce uncertainty before committing to delivery
+title: "🌵 "
+type: Spike
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Spikes answer a **question** or validate a **hypothesis**. They should produce a written outcome
+        (recommendation, prototype, estimate, or explicit "do not proceed") — not production code unless agreed upfront.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question / hypothesis
+      description: What must be true (or false) for us to proceed? State the uncertainty clearly.
+      placeholder: Can we … without …? Is … feasible across the affected platforms?
+    validations:
+      required: true
+
+  - type: textarea
+    id: deliverable
+    attributes:
+      label: Expected deliverable
+      description: What artifact will close this spike? (doc, POC branch, estimate, API contract review, etc.)
+      placeholder: |
+        - Short write-up in …
+        - Runnable POC demonstrating …
+        - Go / no-go recommendation with trade-offs
+    validations:
+      required: false
